@@ -2,8 +2,8 @@
 #include <omp.h>
 #include <time.h>
 #include <stdlib.h>
-#define NL 10  //NL => number of lignes 
-#define NC 9  //NC => numbre of columns 
+#define NL 1100  //NL => number of lignes 
+#define NC 900  //NC => numbre of columns 
 
 
 
@@ -36,7 +36,7 @@ int main()
 	
 	/****************************Allocation dynamique*****************************/
 	double **T2D = alloc_tab2D(NL,NC);
-	double temps_debut = omp_get_wtime(); //initial time
+	double temps_debut = clock(); //initial time
 	
 	#pragma omp parallel for 
 		for(int i = 0 ; i < NL ; i++ )
@@ -47,11 +47,11 @@ int main()
 				printf("Thread number %d fill this portion [%d][%d] of T2D ( Dynamic) \n",omp_get_thread_num(),i,j);
 			}
 		}
-		
-	double timedynamic = omp_get_wtime() - temps_debut;
+	desalloc_tab2D(T2D,NL,NC);
+	double timedynamic = (clock() - temps_debut) / (double)CLOCKS_PER_SEC;
 	
 	/*****************************Allocation static******************************/
-	double temps_debut2 = omp_get_wtime(); //initial time
+	double temps_debut2 = clock(); //initial time
 	double TA2D[NL][NC];
 	#pragma omp parallel for 
 		for(int i = 0 ; i < NL ; i++ )
@@ -62,7 +62,7 @@ int main()
 				printf("Thread number %d fill this portion [%d][%d] of T2D (static) \n",omp_get_thread_num(),i,j);
 			}
 		} 
-	double timestatic = omp_get_wtime() - temps_debut2;
+	double timestatic = (clock() - temps_debut2) / (double)CLOCKS_PER_SEC;
 	printf("%d",nb_threads);
 	// Show execution results.
 	fprintf(stdout, "\n\n"
@@ -82,7 +82,7 @@ int main()
 /****
  * 
  *  1)- Après l'exécution du programme on a eu les résultats ci-dessous , on constate d'après ces derniers que 
- *    la version (tableau statique) est plus efficace que la version (tableau dynamique) en temps d'execution. 
+ *    la version (tableau dynamique) est plus efficace que la version avec un tableau statique, en temps d'execution. 
  * 
  *
  * 
@@ -91,13 +91,13 @@ int main()
  * 					 ---------------------------------------------------------------------------------------------------------------
  *  				|   Charges                      | Temps d'exécution    |   Charges                      | Temps d'exécution	|
  *	--------------------------------------------------------------------------------------------------------------------------------
- * |    NL = 700    | charges threads =0.125499      | time = 14.192830 sec |  charges threads =  0.151083   | time = 15.308255 sec |
+ * |    NL = 700    | charges threads =0.125499      | time = 0.291166 sec  |  charges threads =  0.151083   | time = 0.257982 sec  |
  * |    NC = 560    | charges processeurs =6.533054  |                      |  charges processeurs =7.225250 |      				|
  * |--------------------------------------------------------------------------------------------------------------------------------|
- * |    NL = 1000   | charges threads =	0.276374     | time = 27.484783 sec |  charges threads = 0.264953    | time = 28.557938 sec |
+ * |    NL = 1000   | charges threads =	0.276374     | time = 0.378257 sec  |  charges threads = 0.264953    | time = 0.360686 sec  |
  * |    NC = 800    | charges processeurs = 13.818709|                      |  charges processeurs =13.247638| 					    |
  *  --------------------------------------------------------------------------------------------------------------------------------
- * |    NL = 1100   | charges threads =	0.323663     | time = 30.711679 sec |  charges threads = 0.318080    | time = 33.619428 sec |
+ * |    NL = 1100   | charges threads =	0.323663     | time = 0.555118 sec  |  charges threads = 0.318080    | time = 0.505309 sec  |
  * |    Nc = 900    | charges processeurs =16.183152 |                      |  charges processeurs =15.903982|     				    |
  *  --------------------------------------------------------------------------------------------------------------------------------
  * 

@@ -57,7 +57,8 @@ int main()
 	srand(time(NULL));
 	omp_set_num_threads(5);
 	
-	double t0,t1,t2,t3;
+	int nb_threads = omp_get_max_threads();
+	double t0,t1,t2,t3,t4,t5,t6,t7;
 	double temps_debut = omp_get_wtime(); //initial time
 	
 	/****************************Allocation dynamique, parallele*****************************/
@@ -66,21 +67,27 @@ int main()
 	t0 = omp_get_wtime();
 	#pragma omp parallel for 
 		for(int i = 0 ; i < N ; i++ ){
+			t4 = omp_get_wtime();
 			T1D[i] = (double)rand()/3.33;
 			printf("Thread number %d fill this portion [%d] of table \n",omp_get_thread_num(),i);
+			t5 = omp_get_wtime() - t4;
+			printf("La charge du thread [%d] = %f \n",omp_get_thread_num(), (t5/nb_threads));
 		}
 	t1 = omp_get_wtime() - temps_debut;
 	
 	/*****************************Allocation static, Parallele******************************/
 	
-	double temps_debut2=omp_get_wtime(); //initial time
+	double temps_debut2=clock(); //initial time
 	double TD1[N];
 	#pragma omp parallel for 
 		for(int i = 0 ; i < N ; i++ ){
+			t6 = omp_get_wtime();
 			TD1[i] = (double)rand()/RAND_MAX*100.0-0.0;
 			printf("Thread number %d fill this portion [%d] of table \n",omp_get_thread_num(),i);
+			t7 = omp_get_wtime() - t6;
+			printf("La charge du thread [%d] = %f \n",omp_get_thread_num(), (t7/nb_threads));
 		}
-	t2 = omp_get_wtime() - temps_debut2;
+	t2 = (clock() - temps_debut2) / (double)CLOCKS_PER_SEC;;
 
 	/*****************************Allocation statique, séquentielle************************************************/
 	//Sequetial_static();
