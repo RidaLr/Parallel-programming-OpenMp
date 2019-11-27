@@ -2,8 +2,8 @@
 #include <omp.h>
 #include <time.h>
 #include <stdlib.h>
-#define NL 700  //NL => number of lignes 
-#define NC 560  //NC => numbre of columns 
+#define NL 10  //NL => number of lignes 
+#define NC 9  //NC => numbre of columns 
 
 
 
@@ -31,8 +31,8 @@ int main()
 {
 	
 	srand(time(NULL));
-	omp_set_num_threads(5);
-	
+	omp_set_num_threads(100);
+	int nb_threads = omp_get_num_threads();
 	double temps_debut = clock(); //initial time
 	
 	/****************************Allocation dynamique*****************************/
@@ -44,9 +44,10 @@ int main()
 			for(int j = 0 ; j < NC ; j++ )
 			{
 				T2D[i][j] = (double)rand()/3.33;
-				printf("Thread number %d fill this portion [%d][%d] of table \n",omp_get_thread_num(),i,j);
+				//printf("Thread number %d fill this portion [%d][%d] of table \n",omp_get_thread_num(),i,j);
 			}
 		}
+		printf("%d",nb_threads);
 	double timedynamic = ( clock() - temps_debut ) / (double)CLOCKS_PER_SEC;
 	
 	/*****************************Allocation static******************************/
@@ -58,21 +59,46 @@ int main()
 			for(int j = 0 ; j < NC ; j++ )
 			{
 				TA2D[i][j] = (double)rand()/3.33;
-				printf("Thread number %d fill this portion [%d][%d] of table \n",omp_get_thread_num(),i,j);
+				//printf("Thread number %d fill this portion [%d][%d] of table \n",omp_get_thread_num(),i,j);
 			}
-		}
-	printf("Temps d'exécution (Tab statique) : %f sec\n",( (clock() - temps_debut2) / (double) CLOCKS_PER_SEC ));
-	printf(" Temps d'exécution (Tab dynamique) : %f sec\n",(timedynamic));
+		} 
+	double timestatic = ((clock() - temps_debut2) / (double) CLOCKS_PER_SEC );
+	
+	// Show execution results.
+	fprintf(stdout, "\n\n"
+	  "   Nombre de lignes      : %d sec \n"
+	  "   Nombre de colonnes    : %d sec \n"
+	  "   Temps d'exécution (Tab statique) : %f sec \n"
+	  "   Temps d'exécution (Tab dynamique) : %f sec \n"
+	  "   La charge des threads (Statique)  : %f.\n"
+	  "   La charge des threads (dynamique)  : %f.\n"
+	  "   La charge des processeurs (statique)  : %f.\n"
+	  "   La charge des processeurs (dynamique)  : %f.\n",
+	  NL,NC,timestatic, timedynamic, (timestatic/100), (timedynamic/100), (timestatic/omp_get_num_procs()), (timedynamic/omp_get_num_procs()));
+
 	return 0;
 }
 
 /****
  * 
  *  1)- Après l'exécution du programme on a eu les résultats ci-dessous , on constate d'après ces derniers que 
- *    la version (tableau dynamique) est plus efficace que la version (tableau statique). 
+ *    la version (tableau statique) est plus efficace que la version (tableau dynamique) en temps d'execution. 
  * 
- * Temps d'exécution (Tab statique) : 15.847540 sec
- * Temps d'exécution (Tab dynamique) : 10.950348 sec
+ *
  * 
+ *                   ---------------------------------------------------------------------------------------------------------------
+ *                  |                        STATIQUES                      |				      DYNAMIQUES                        |
+ * 					 ---------------------------------------------------------------------------------------------------------------
+ *  				|   Charges                      | Temps d'exécution    |   Charges                      | Temps d'exécution	|
+ *	--------------------------------------------------------------------------------------------------------------------------------
+ * |    NL = 700    | charges threads =0.125499      | time = 14.192830 sec |  charges threads =  0.151083   | time = 15.308255 sec |
+ * |    NC = 560    | charges processeurs =6.533054  |                      |  charges processeurs =7.225250 |      				|
+ * |--------------------------------------------------------------------------------------------------------------------------------|
+ * |    NL = 1000   | charges threads =	0.276374     | time = 27.484783 sec |  charges threads = 0.264953    | time = 28.557938 sec |
+ * |    NC = 800    | charges processeurs = 13.818709|                      |  charges processeurs =13.247638| 					    |
+ *  --------------------------------------------------------------------------------------------------------------------------------
+ * |    NL = 1100   | charges threads =	0.323663     | time = 30.711679 sec |  charges threads = 0.318080    | time = 33.619428 sec |
+ * |    Nc = 900    | charges processeurs =16.183152 |                      |  charges processeurs =15.903982|     				    |
+ *  --------------------------------------------------------------------------------------------------------------------------------
  * 
  * *****/

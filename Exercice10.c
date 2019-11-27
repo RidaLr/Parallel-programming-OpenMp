@@ -19,6 +19,7 @@ double calcul(double* array, int length)
 
 int main()
 {
+	
 	double array[1024];
 	omp_init_lock(&lock);	
 	calcul(array,1024);

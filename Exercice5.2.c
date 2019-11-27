@@ -40,29 +40,27 @@ int main(){
 	srand(time(NULL));
 	omp_set_num_threads(5);
 	
-	double temps_debut=omp_get_wtime();
-	// Calcul le temps du CPU (temps initial)
+	// Calcul le temps d'execution (temps initial)
 	time0 = clock();
 
 	#pragma omp parallel 
 	{
 		#pragma omp for schedule(dynamic) reduction(+:somme) 
-		for(int i = 0 ; i < n ; i++ ){
-			T1D[i] = (double)rand()/3.33;
-			somme+=T1D[i];
-			printf("Thread number %d , somme = [%d]  \n",(somme));
-		}
+			for(int i = 0 ; i < n ; i++ ){
+				T1D[i] = (double)rand()/3.33;
+				somme+=T1D[i];
+				printf("Thread number %d , somme = [%d]  \n",(somme));
+			}
 		
 	}
 
-	// Calcul le temps du CPU (temps final)
+	// Calcul le temps d'execution (temps final)
 	time1 = clock();
 	t = (time1 - time0) / (double)CLOCKS_PER_SEC;
 
 	// Impression des resultats
-	fprintf(stdout, " La taille du tableau   : %d\n  Temps CPU    : %f sec.\n", n, t);
+	fprintf(stdout, " La taille du tableau   : %d\n  Temps d'execution   : %f sec.\n", n, t);
 	printf(" La somme finale est %d \n ", somme);
-	printf(" Temps d'exécution  : %f\n",(omp_get_wtime() - temps_debut));
 	
 	return 0;
 }
@@ -72,7 +70,6 @@ int main(){
  * 	-----------------------------------------------------------------------
  * |       N = 1000                     |      N = 10                      |
  *	-----------------------------------------------------------------------
- * |    timeExec = 0.125379             |       timeExec = 0.003231        |
  * |    timeCPU  = 0.037771             |       timeCPU  = 0.002035        |
  *  -----------------------------------------------------------------------
  * 
