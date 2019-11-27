@@ -32,11 +32,11 @@ int main()
 	
 	srand(time(NULL));
 	omp_set_num_threads(100);
-	int nb_threads = omp_get_num_threads();
-	double temps_debut = clock(); //initial time
+	int nb_threads = omp_get_max_threads();
 	
 	/****************************Allocation dynamique*****************************/
 	double **T2D = alloc_tab2D(NL,NC);
+	double temps_debut = omp_get_wtime(); //initial time
 	
 	#pragma omp parallel for 
 		for(int i = 0 ; i < NL ; i++ )
@@ -44,14 +44,14 @@ int main()
 			for(int j = 0 ; j < NC ; j++ )
 			{
 				T2D[i][j] = (double)rand()/3.33;
-				//printf("Thread number %d fill this portion [%d][%d] of table \n",omp_get_thread_num(),i,j);
+				printf("Thread number %d fill this portion [%d][%d] of T2D ( Dynamic) \n",omp_get_thread_num(),i,j);
 			}
 		}
-		printf("%d",nb_threads);
-	double timedynamic = ( clock() - temps_debut ) / (double)CLOCKS_PER_SEC;
+		
+	double timedynamic = omp_get_wtime() - temps_debut;
 	
 	/*****************************Allocation static******************************/
-	double temps_debut2=clock(); //initial time
+	double temps_debut2 = omp_get_wtime(); //initial time
 	double TA2D[NL][NC];
 	#pragma omp parallel for 
 		for(int i = 0 ; i < NL ; i++ )
@@ -59,11 +59,11 @@ int main()
 			for(int j = 0 ; j < NC ; j++ )
 			{
 				TA2D[i][j] = (double)rand()/3.33;
-				//printf("Thread number %d fill this portion [%d][%d] of table \n",omp_get_thread_num(),i,j);
+				printf("Thread number %d fill this portion [%d][%d] of T2D (static) \n",omp_get_thread_num(),i,j);
 			}
 		} 
-	double timestatic = ((clock() - temps_debut2) / (double) CLOCKS_PER_SEC );
-	
+	double timestatic = omp_get_wtime() - temps_debut2;
+	printf("%d",nb_threads);
 	// Show execution results.
 	fprintf(stdout, "\n\n"
 	  "   Nombre de lignes      : %d sec \n"

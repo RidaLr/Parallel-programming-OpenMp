@@ -53,8 +53,7 @@ int main()
 	omp_set_num_threads(15);
 	/****************************************/
 	struct timeval time_before, time_after;
-	double time_execution;
-
+	double time_execution, t0, t1, tmultMat, tmultY;
 	
 	// Time before execution
 	gettimeofday(&time_before, NULL);
@@ -65,47 +64,60 @@ int main()
 		
 		//Initialisation of the vector X
 		#pragma omp for schedule(runtime) nowait
-			for(int i=0; i < NL; i++) {
+			for(int i=0; i < NL; i++) 
+			{
 				X[i] = (double)rand()/RAND_MAX*100.0-0.0;
 			}
 		
 		//Initialisation of the vector Y
 		#pragma omp for schedule(runtime) nowait
-			for(int i=0; i < NL; i++) {
+			for(int i=0; i < NL; i++) 
+			{
 				Y[i] = 0.0;
 			}
-		
+		//Initialisation of A
 		#pragma omp for schedule(runtime) nowait
-			for(int i=0; i < NL; i++) {
-			  for(int j=0; j < NC; j++) {
-				A[i][j] = (double)rand()/RAND_MAX*100.0-0.0;
+			for(int i=0; i < NL; i++) 
+			{
+			  for(int j=0; j < NC; j++) 
+			  {
+					A[i][j] = (double)rand()/RAND_MAX*100.0-0.0;
 			  }
 			}
 
 		#pragma omp for schedule(runtime) nowait
-			for(int i=0; i < NL; i++) {
-			  for(int j=0; j < NC; j++) {
-				B[i][j] = (double)rand()/RAND_MAX*100.0-0.0;
+			for(int i=0; i < NL; i++) 
+			{
+			  for(int j=0; j < NC; j++) 
+			  {
+					B[i][j] = (double)rand()/RAND_MAX*100.0-0.0;
 			  }
 			}
 
 		#pragma omp for schedule(runtime)
-			for(int i=0; i < NL; i++) {
-			  for(int j=0; j < NC; j++) {
-				C[i][j] = 0;
+			for(int i=0; i < NL; i++) 
+			{
+			  for(int j=0; j < NC; j++) 
+			  {
+					C[i][j] = 0;
 			  }
 			}
 
 		  // Produit de matrices
+		t0 = clock();
 		#pragma omp for schedule(runtime)
-			for(int i=0; i < NL; i++) {
-			  for(int j=0; j < NL; j++) {
-				for(int k=0; k < NC; k++) {
+			for(int i=0; i < NL; i++) 
+			{
+			  for(int j=0; j < NL; j++) 
+			  {
+				for(int k=0; k < NC; k++) 
+				{
 				  C[i][j] = C[i][j] + A[i][k] * B[k][j];
 				}
 			  }
 			}
-
+		tmultMat = (clock() - t0) / (double)CLOCKS_PER_SEC;
+		
 			//Show  the matrix C = A * B 
 			/*#pragma omp for schedule(runtime)
 				for(int i = 0 ; i < NL ; i++ ){
@@ -115,13 +127,16 @@ int main()
 				}*/
 			
 			  // Product of matrice & vector
+			t1 = clock();
 			#pragma omp for schedule(runtime)
-				for(int i=0; i < NL; i++) {
-				  for(int j=0; j < NL; j++) {
+				for(int i=0; i < NL; i++) 
+				{
+				  for(int j=0; j < NL; j++) 
+				  {
 					 Y[i] = Y[i] + A[i][j] * X[j];
 				  }
 				}
-				
+			tmultY = (clock() - t1) / (double)CLOCKS_PER_SEC;
 			
 			//Show  the vector  Y = A * X 
 			/*#pragma omp for schedule(runtime)
@@ -135,13 +150,14 @@ int main()
 	  gettimeofday(&time_after, NULL);
 	  time_execution = (time_after.tv_sec - time_before.tv_sec) + (time_after.tv_usec - time_before.tv_usec) / (double)1000000;
 
-	  
 	  // Show execution results.
 	  fprintf(stdout, "\n\n"
-		  "   Numbre of lines     : %d \n"
-		  "   Numbre of columns   : %d \n"
-		  "   Execution time      : %f sec.\n",
-		  NL, NC, time_execution);
+		  "   Numbre of lines             : %d \n"
+		  "   Numbre of columns           : %d \n"
+		  "   Execution time of y=A*x     : %f sec\n"
+		  "   Execution time of C=A*B     : %f sec\n"
+		  "   Execution time of program   : %f sec\n",
+		  NL, NC, tmultY, tmultMat, time_execution);
 		
 	free(X);
 	desalloc_Matrix(A,NL,NC);
