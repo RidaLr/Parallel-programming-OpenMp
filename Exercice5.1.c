@@ -2,7 +2,7 @@
 #include <omp.h>
 #include <time.h>
 #include <stdlib.h>
-#define N 10 //The table size 
+#define N 10000 //The table size 
 
 /*
 void FillTab(int size,double table[]){
@@ -88,7 +88,7 @@ int main()
 	double table[N];
 	for(int i = 0 ; i < N ; i++ ){
 		table[i] = (double)rand()/3.33;
-		printf("Thread number %d fill this portion [%d] of table \n",omp_get_thread_num(),i);
+		printf("Thread number %d fill this portion [%d] of table \n",omp_get_thread_num(),i); // thread 0  c'est lui qui remplie touteles portions du tableau
 	}
 	double temps_fin= clock();
 	timestatic = (temps_fin - temps_debut1)/ (double)CLOCKS_PER_SEC;
@@ -102,7 +102,7 @@ int main()
 	
 	for(int i = 0 ; i < N ; i++ ){
 		array[i] = (double)rand()/3.33;
-		printf("Thread number %d fill this portion [%d] of table \n",omp_get_thread_num(),i);
+		printf("Thread number %d fill this portion [%d] of table \n",omp_get_thread_num(),i);// thread 0  c'est lui qui remplie touteles portions du tableau
 	}
 	timedynamic = (clock() - temps_debut0)/ (double)CLOCKS_PER_SEC;
 	
@@ -123,40 +123,34 @@ int main()
 }
 
 /*
- * La charge de chacun des processeurs égale à l'indice du portion du tableau que ce dernier rempli.
  *
  * 
- * Après l'exécution du programme avec les deux allocations des tableaux (dynamique et statique), on a eu les résultats suivants 
+ * Après l'exécution du programme avec les deux allocations des tableaux (dynamique et statique), on a eu les résultats suivants :
  *  
- *                   ---------------------------------------------------------------------------------------------------------------
- *                  |                        STATIQUES                      |				      DYNAMIQUES                        |
- *  VERSION 		 ---------------------------------------------------------------------------------------------------------------
- *  PARALLELE   	|   Charges                      | Temps d'exécution    |   Charges                      | Temps d'exécution	|
- *	--------------------------------------------------------------------------------------------------------------------------------
- * |    NL = 1000    | charges threads = 0.006589    | time = 0.032945 sec  |   charges threads = 0.009816   | time = 0.049082 sec  |
- * |    		     | charges processeurs = 0.016473|                      |  charges processeurs =0.024541 |      				|
- * |--------------------------------------------------------------------------------------------------------------------------------|
- * |    NL = 10     | charges threads =	 0.000076    | time = 0.000380 sec  |  charges threads =     | time =  |
- * |    		    | charges processeurs = 0.000190 |                      |  charges processeurs = | 					    |
- *  --------------------------------------------------------------------------------------------------------------------------------
+ *                   ------------------------------------------------------------------------------------------------------------
+ *                  |                        STATIQUES                     |				      DYNAMIQUES                     |
+ *  VERSION 		 ------------------------------------------------------------------------------------------------------------
+ *  PARALLELE   	|   Charges                     | Temps d'exécution    |   Charges                      |  Temps d'exécution |
+ *	-----------------------------------------------------------------------------------------------------------------------------
+ * |    NL = 10     | charges threads = 0.000216    | time = 0.001079 sec  |   charges threads = 0.001137   | time = 0.005684 sec|
+ * |    		    | charges processeurs = 0.000539|                      |  charges processeurs =0.002842 |      				 | 
+ * |-----------------------------------------------------------------------------------------------------------------------------|
+ * |    NL = 1000   | charges threads =	0.034912 sec| time = 0.174558 sec  |  charges threads = 0.024931    | time = 0.124654 sec|
+ * |    		    | charges processeurs = 0.087279|                      |  charges processeurs = 0.062327| 		   		     |
+ *  -----------------------------------------------------------------------------------------------------------------------------
  * 
  *  
- *                   ---------------------------------------------------------------------------------------------------------------
- *                  |                        STATIQUES                      |				      DYNAMIQUES                        |
- *   VERSION		 ---------------------------------------------------------------------------------------------------------------
- *   SEQUENTIELLE	|   Charges                      | Temps d'exécution    |   Charges                      | Temps d'exécution	|
- *	--------------------------------------------------------------------------------------------------------------------------------
- * |    NL = 700    | charges threads =0.125499      | time = 14.192830 sec |  charges threads =  0.151083   | time = 15.308255 sec |
- * |    NC = 560    | charges processeurs =6.533054  |                      |  charges processeurs =7.225250 |      				|
- * |--------------------------------------------------------------------------------------------------------------------------------|
- * |    NL = 1000   | charges threads =	0.276374     | time = 27.484783 sec |  charges threads = 0.264953    | time = 28.557938 sec |
- * |    NC = 800    | charges processeurs = 13.818709|                      |  charges processeurs =13.247638| 					    |
- *  --------------------------------------------------------------------------------------------------------------------------------
- * |    NL = 1100   | charges threads =	0.323663     | time = 30.711679 sec |  charges threads = 0.318080    | time = 33.619428 sec |
- * |    Nc = 900    | charges processeurs =16.183152 |                      |  charges processeurs =15.903982|     				    |
- *  --------------------------------------------------------------------------------------------------------------------------------
+ *                   ------------------------------------------------------------
+ *                  |      STATIQUES             |	  DYNAMIQUES                 |
+ *  VERSION 		 ------------------------------------------------------------
+ *  SEQUENTIELLE   	|   Temps d'exécution        |     Temps d'exécution         |
+ *	-----------------------------------------------------------------------------
+ * |    NL = 10     | time = 0.000421 sec        |  time = 0.000426 sec          | 
+ * |-----------------------------------------------------------------------------|
+ * |    NL = 1000   | time = 0.052244 sec        | time = 0.066245  sec          |
+ *  -----------------------------------------------------------------------------
  * 
- *  d'après ce tableau on constate que la version séquentielle est plus efficaces pour les tablaux de petites tailles,
- *  par contre la meilleure sollution pour les tableaux qui ont des tailles enormes est la programmation parallèle, 
- *  parceque le temps d'exécution est plus petit que la verssion séquentielle. 
+ *  d'après ce tableau on constate que la version séquentielle est plus efficaces en temps d'execution par rapport à la version
+ *  parallèle. 
+ *  
  *  */
