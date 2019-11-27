@@ -3,27 +3,28 @@
 #include <time.h>
 #include <sys/time.h>
 #include <stdlib.h>
-#define NC 1000  // Number of lines
-#define NL 900  // Number of columns
+#define NC 10000  // Number of lines
+#define NL 5000  // Number of columns
 
 
 /* This fuction allocate a matrix dynamically*/
 double **alloc_Matrix(int nl,int nc)
 {	
 	double **mat=(double**)malloc(nl*sizeof(double *));
-	for( int i=0;i<nl;i++)
-	{
-		mat[i]=(double*)malloc(nc*sizeof(double));
-	}
+	
+		for( int i=0;i<nl;i++)
+		{
+			mat[i]=(double*)malloc(nc*sizeof(double));
+		}
 	return mat;
 }
 
 void desalloc_Matrix(double **mat,int nl,int nc)
 {
-	for(int i=0;i<=nl;i++)
-	{
-		free(mat[i]);
-	}
+		for(int i=0;i<=nl;i++)
+		{
+			free(mat[i]);
+		}
 	free(mat);
 }
 
@@ -46,14 +47,13 @@ int main()
 	double *Y = alloc_vector(NL); // the vector Y = A * ( A * X + X ) + X
 	double tmp = 0.0;
 	srand(time(NULL));
-	omp_set_num_threads(10);
+	omp_set_num_threads(15);
 	/****************************************/
-	struct timeval time_before, time_after;
-	double time_execution;
+	double time_execution,t0,t1,t2,t3;
 
 
 	// Time before execution.
-	 gettimeofday(&time_before, NULL);
+	t0 = omp_get_wtime();
 
 	#pragma omp parallel
 	{
@@ -143,16 +143,14 @@ int main()
 	  } // omp end parallel
 
 	  // Time after execution
-	  gettimeofday(&time_after, NULL);
-	  time_execution = (time_after.tv_sec - time_before.tv_sec) + (time_after.tv_usec - time_before.tv_usec) / (double)1000000;
-
+	  t1 = (omp_get_wtime() - t0);
 
 	  // Show time performance
 	  fprintf(stdout, "\n\n"
-		  "   Numbre de lines     : %5d\n"
+		  "   Numbre de lines     : %d\n"
 		  "   Numbre of columns   : %d\n"
 		  "   Execution time      : %f sec.\n",
-		  NL, NC, time_execution
+		  NL, NC, t1
 		  );
 		
 	free(X);
@@ -168,10 +166,10 @@ int main()
  *  					-----------------------------------------------------------------------
  *                     |       Parallele                    |      Sequentielle                |
  *	-------------------------------------------------------------------------------------------
- * |    NL = 96        |      time = 0.007487 sec           |     time = 0.006683 sec          |
- * |	NC = 100       |                                    |                                  |
+ * |    NL = 5000      |      time = 28.822994 sec          |     time = 25.232375 sec         |
+ * |	NC = 10000     |                                    |                                  |
  * |-------------------------------------------------------------------------------------------|
- * |    NL = 900       |      time = 0.535053 sec           |     time = 0.403712 sec          |
+ * |    NL = 500       |      time = 0.281662 sec           |     time = 0.274424 sec          |
  * |    NC = 1000      |                                    |                                  |
  *  -------------------------------------------------------------------------------------------
  * */
