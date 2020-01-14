@@ -3,7 +3,7 @@
 #include <time.h>
 #include <stdlib.h>
 #define NL 1100  //NL => number of lignes 
-#define NC 900  //NC => numbre of columns 
+#define NC 900  //NC => number of columns 
 
 
 
